@@ -83,4 +83,6 @@ if __name__ == '__main__':
                    '--experiment-uri',
                    f'mdsplus:/?user={user};machine={tokamak};version={version};shot={shot};run={run}{occurrence}']
         logging.info(f'Executing command: {" ".join(command)}')
-        subprocess.run(command)
+        process = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        logging.debug(f'Command\'s standard output:\n{process.stdout.decode()}')
+        logging.debug(f'Command\'s standard error:\n{process.stderr.decode()}')

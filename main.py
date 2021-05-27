@@ -20,8 +20,10 @@ class EventHandler(FileSystemEventHandler):
     def handle(self, event: FileSystemEvent):
         if event.event_type in (EVENT_TYPE_CREATED, EVENT_TYPE_MODIFIED) and event.is_directory is False:
             logging.debug(event)
-            logging.info(f'Running {action} {" ".join(arguments)} {event.src_path}')
-            subprocess.run([action] + arguments + [path])
+            logging.info(f'Executing handler: {action} {" ".join(arguments)} {event.src_path}')
+            process = subprocess.run([action] + arguments + [event.src_path], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            logging.debug(f'Handler\'s standard output:\n{process.stdout.decode()}')
+            logging.debug(f'Handler\'s standard error:\n{process.stderr.decode()}')
 
     def on_created(self, event):
         self.handle(event)
