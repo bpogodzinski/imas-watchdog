@@ -18,7 +18,7 @@ class EventHandler(FileSystemEventHandler):
         self.arguments = arguments
 
     def handle(self, event: FileSystemEvent):
-        if event.event_type in (EVENT_TYPE_CREATED, EVENT_TYPE_MODIFIED):
+        if event.event_type in (EVENT_TYPE_CREATED, EVENT_TYPE_MODIFIED) and event.is_directory is False:
             logging.debug(event)
             logging.info(f'Running {action} {" ".join(arguments)} {event.src_path}')
             subprocess.run([action] + arguments + [path])
