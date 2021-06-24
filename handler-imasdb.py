@@ -37,10 +37,15 @@ def parse_path(core: str) -> Tuple[str, str, str, int, int]:
 if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG)
 
+    debug_imas_watchdog_env  = os.getenv("DEBUG_IMAS_WATCHDOG")
+    disable_access_token_env = os.getenv("DISABLE_ACCESS_TOKEN")
+
     parser = argparse.ArgumentParser(description='Watch for creation of pulsefiles')
     parser.add_argument('--jar', help='path to catalog-ws-client JAR',
                         default='/catalog_qt_2/client/catalog-ws-client/target/catalogAPI.jar')
     parser.add_argument('--url', help='URL of webservice endpoint', default='http://server:8080')
+    parser.add_argument('--disable-access-token', help='Determines whether access token should be enabled or not', default=None)
+    parser.add_argument('--debug', help='Debugger settings for JAR file', default=None)
     parser.add_argument('file')
     args = parser.parse_args()
 
@@ -73,8 +78,23 @@ if __name__ == '__main__':
 
         command = ['java',
                    '-jar',
-                   args.jar,
-                   '--run-as-service',
+                   args.jar]
+
+        if debug_imas_watchdog_env is not None or args.debug is not None:
+
+            if args.debug is None:
+                 debug_string_jwdp='-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:32887'
+            else:
+                 debug_string_jwdp=args.debug.replace("'","") 
+           
+            command += [ debug_string_jwdp ]
+
+        if disable_access_token_env is not None or args.disable_access_token is not None:
+
+            command += [ '--disable-access-token' ]
+
+
+        command += ['--run-as-service',
                    '-addRequest',
                    '--user',
                    'imas-inotify-auto-updater',
